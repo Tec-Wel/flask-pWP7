@@ -15,97 +15,7 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 
 
-def recommend(resources: dict, query_userID: str) -> tuple[list, dict]: 
-    final_resources_rank = {}
-    recommended_list = [] # i.e. all attributes match 
-    num_attributes = 3
-    resources_list = []
 
-    for resource, attribute in resources.items():
-        count_satisfied = 0
-        # only suggest resource if +/- x away from user's preference
-        can_suggest = True
-        # 1) Age -> Target Audience
-        for audience in attribute['Target Audience']:
-            if audience == 'nan': 
-                continue
-            # print(audience, type(audience)) 
-            if age_map[audience][0] <= int(users[query_userID]['Age'][0]) <= age_map[audience][1]:
-                count_satisfied += 1
-                break
-        # 2) LGBTQ+ Friendly -> LGBTQ+ Friendly
-        lgbt_off = abs(float(attribute['LGBTQ+ Friendly'][0]) - float(users[query_userID]['LGBTQ+ Friendly'][0]))
-        if lgbt_off == 0:
-            count_satisfied += 1
-        if lgbt_off > 1:
-            can_suggest == False
-        
-        # 3) MHQ Score -> Welfie Rating (0-19 = 1, 20-39 = 2, 40-59 = 3, 60-79 = 4, 80-100 = 5)
-        rating = attribute['Welfie Rating'][0]
-        if rating != 'nan':
-            if mhq_map[rating][0] <= int(users[query_userID]['MHQ score'][0]) <= mhq_map[rating][1]:
-                count_satisfied += 1
-        
-        # 4) Geographic Focus -> Geographic Focus
-        if users[query_userID]['Geographic Focus'][0] == 'NONE':
-            count_satisfied += 1
-        else:
-            if attribute['Geographic Focus'][0] != 'nan':
-                if attribute['Geographic Focus'][0] == users[query_userID]['Geographic Focus'][0]:
-                    count_satisfied += 1
-
-        # 5) Technical Proficiency -> Tech. Equity (1=Low, 4=High) 
-        # TODO: only suggest resource if +/- x away from user's preference
-        tech_off = abs(float(attribute['Tech. Equity'][0]) - float(users[query_userID]['Technical Proficiency'][0]))
-        if tech_off == 0:
-            count_satisfied += 1
-        if tech_off > 1:
-            can_suggest == False
-
-        # 6) Type of Organization -> Type of Organization
-        if attribute['Type of Organization'][0] != 'nan':
-            if attribute['Type of Organization'][0] == users[query_userID]['Type of Organization'][0]:
-                count_satisfied += 1
-
-        # Add resource to recommended_list if all attributes are satisfied
-        resource_row = f"""Name: {resource}, #Satisfied Attribute: {count_satisfied}, 
-                        Target Audience: {attribute['Target Audience']}, 
-                        LGBTQ+ Friendly: {attribute['LGBTQ+ Friendly'][0]},
-                        Welfie Rating: {rating}, 
-                        Geographic Focus: {attribute['Geographic Focus'][0]}, 
-                        Tech. Equity: {attribute['Tech. Equity'][0]},
-                        Type of Organization: {attribute['Type of Organization'][0]}"""
-        
-        # resource_object = {
-        #     "name" : resource,
-        #     "url" : attribute['URL'],
-        #     "picture" : attribute['Photo'] 
-        # }
-
-
-        if count_satisfied == num_attributes:
-            recommended_list.append(resource_row)
-            for res in resources_dict:
-                if res['Name'] == resource:
-                    resource_object = {
-                        "name" : res['Name'],
-                        "url" : res['URL'],
-                        "Photo" : res['Photo']
-                    }
-                    resources_list.append(resource_object)
-                    print(resources_list)
-                         
-        else:
-            if not can_suggest:
-                continue
-            # record ranking of suggested recommendations
-            if count_satisfied not in final_resources_rank:
-                final_resources_rank[count_satisfied] = [resource_row]
-            else:
-                final_resources_rank[count_satisfied].append(resource_row)
-
-    
-    return recommended_list, final_resources_rank, resources_list
 
 
 
@@ -178,6 +88,100 @@ def process_data():
                             "3.0": (40, 59),
                             "4.0": (60, 79),
                             "5.0": (80, 100)}
+        
+
+
+        def recommend(resources: dict, query_userID: str) -> tuple[list, dict]: 
+            final_resources_rank = {}
+            recommended_list = [] # i.e. all attributes match 
+            num_attributes = 3
+            resources_list = []
+
+            for resource, attribute in resources.items():
+                count_satisfied = 0
+                # only suggest resource if +/- x away from user's preference
+                can_suggest = True
+                # 1) Age -> Target Audience
+                for audience in attribute['Target Audience']:
+                    if audience == 'nan': 
+                        continue
+                    # print(audience, type(audience)) 
+                    if age_map[audience][0] <= int(users[query_userID]['Age'][0]) <= age_map[audience][1]:
+                        count_satisfied += 1
+                        break
+                # 2) LGBTQ+ Friendly -> LGBTQ+ Friendly
+                lgbt_off = abs(float(attribute['LGBTQ+ Friendly'][0]) - float(users[query_userID]['LGBTQ+ Friendly'][0]))
+                if lgbt_off == 0:
+                    count_satisfied += 1
+                if lgbt_off > 1:
+                    can_suggest == False
+                
+                # 3) MHQ Score -> Welfie Rating (0-19 = 1, 20-39 = 2, 40-59 = 3, 60-79 = 4, 80-100 = 5)
+                rating = attribute['Welfie Rating'][0]
+                if rating != 'nan':
+                    if mhq_map[rating][0] <= int(users[query_userID]['MHQ score'][0]) <= mhq_map[rating][1]:
+                        count_satisfied += 1
+                
+                # 4) Geographic Focus -> Geographic Focus
+                if users[query_userID]['Geographic Focus'][0] == 'NONE':
+                    count_satisfied += 1
+                else:
+                    if attribute['Geographic Focus'][0] != 'nan':
+                        if attribute['Geographic Focus'][0] == users[query_userID]['Geographic Focus'][0]:
+                            count_satisfied += 1
+
+                # 5) Technical Proficiency -> Tech. Equity (1=Low, 4=High) 
+                # TODO: only suggest resource if +/- x away from user's preference
+                tech_off = abs(float(attribute['Tech. Equity'][0]) - float(users[query_userID]['Technical Proficiency'][0]))
+                if tech_off == 0:
+                    count_satisfied += 1
+                if tech_off > 1:
+                    can_suggest == False
+
+                # 6) Type of Organization -> Type of Organization
+                if attribute['Type of Organization'][0] != 'nan':
+                    if attribute['Type of Organization'][0] == users[query_userID]['Type of Organization'][0]:
+                        count_satisfied += 1
+
+                # Add resource to recommended_list if all attributes are satisfied
+                resource_row = f"""Name: {resource}, #Satisfied Attribute: {count_satisfied}, 
+                                Target Audience: {attribute['Target Audience']}, 
+                                LGBTQ+ Friendly: {attribute['LGBTQ+ Friendly'][0]},
+                                Welfie Rating: {rating}, 
+                                Geographic Focus: {attribute['Geographic Focus'][0]}, 
+                                Tech. Equity: {attribute['Tech. Equity'][0]},
+                                Type of Organization: {attribute['Type of Organization'][0]}"""
+                
+                # resource_object = {
+                #     "name" : resource,
+                #     "url" : attribute['URL'],
+                #     "picture" : attribute['Photo'] 
+                # }
+
+
+                if count_satisfied == num_attributes:
+                    recommended_list.append(resource_row)
+                    for res in resources_dict:
+                        if res['Name'] == resource:
+                            resource_object = {
+                                "name" : res['Name'],
+                                "url" : res['URL'],
+                                "Photo" : res['Photo']
+                            }
+                            resources_list.append(resource_object)
+                            print(resources_list)
+                                
+                else:
+                    if not can_suggest:
+                        continue
+                    # record ranking of suggested recommendations
+                    if count_satisfied not in final_resources_rank:
+                        final_resources_rank[count_satisfied] = [resource_row]
+                    else:
+                        final_resources_rank[count_satisfied].append(resource_row)
+
+            
+            return recommended_list, final_resources_rank, resources_list
         data = request.get_json()
         print(data)
         index = str(data['index'])

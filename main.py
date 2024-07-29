@@ -209,7 +209,7 @@ def process_data():
             utils.print_list(suggested, "Suggested Resources: ")
         print(resources_list)
 
-        return resources_list
+        return jsonify(resources_list)
 
 
 

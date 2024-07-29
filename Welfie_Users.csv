@@ -1,0 +1,6 @@
+User ID,Name,Age,Gender,Language,CITY,COUNTY,STATE,LGBTQ+ Friendly,Racial Focus,Exclude Race(s),BMI,MHQ score,PHQ score,Affordability,Technical Proficiency,Geographic Focus,Use Cases,Therapy Services,Health Service Providers,Type of Medicine,Commonly Used Language*,Clinical Diagnosis (DSM-V),Type of Organization,Other Preferences
+1,LB,25,Male,English,San Diego,San Diego,California,2,,NONE,25,20,4,3,2,Urban ,Preventive,Yes,"Psychologists, volunteers",Non-Pharmaceutical,Mental Health,NONE,For Profit,"Equity Focused,Accepts Insurance"
+2,AJ,21,Male,English,San Diego,San Diego,California,1,,NONE,45,90,89,4,3,Suburban ,On Demand Treatment,No,Doctors,Alternative Medicine,"Mental Health, Stress, Depression, Anxiety","General Anxiety Disorder,Suicidal Thoughts",For Profit,Young Adult Focused
+3,JC,21,Male,Spanish,San Diego,San Diego,California,3,,Black,75,70,70,1,4,NONE,Health Promotion,No,volunteers,Non-Pharmaceutical,"Mental Health, Depression","General Anxiety Disorder,Suicidal Thoughts",NONE,"Patient Focused,Accepts Insurance"
+4,LB,35,Other,English,Austin,Travis,Texas,1,,White,35,19,19,2,1,Urban ,Preventive,Yes,Therapists,Alternative Medicine,NONE,"General Anxiety Disorder,Suicidal Thoughts",Non-profit,Not Online-only
+

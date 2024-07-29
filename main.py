@@ -112,6 +112,72 @@ def recommend(resources: dict, query_userID: str) -> tuple[list, dict]:
 
 @app.route('/recommend', methods=['POST'])
 def process_data():
+        # Read user and movie data from CSV files
+        user_csv = pd.read_csv('Welfie_Users.csv')
+        resources_csv = pd.read_csv('Mental_Health_Resources.csv')
+
+        # Each user has keys: 'Name', ...
+        users_dict = user_csv.to_dict('records')
+
+        # User -> Resource 
+        # Age -> Target Audience (Done)
+        # Geographic Focus -> Geographic Focus (Done)
+        # MHQ Score -> Welfie Rating (0-19 = 1, 20-39 = 2, 40-59 = 3, 60-79 = 4, 80-100 = 5) (Done)
+        # LGBTQ+ Friendly -> LGBTQ+ Friendly (Done)
+        # Technical Proficiency -> Tech. Equity (1=Low, 4=High) (Done)
+        # Type of Organization -> Type of Organization (Done)
+        # 
+        # Other Preferences -> Pros, Cons, 
+
+        # user_attributes_that_is_a_list = ["Health Service Providers", "Type of Medicine", "Commonly Used Language*", "Clinical Diagnosis (DSM-V)", "Other Preferences"]
+        user_attribute_list = ["Name", "Age", "LGBTQ+ Friendly", "MHQ score", "Geographic Focus", "Technical Proficiency", 
+                            "Type of Organization"]
+        users = {}
+        for user in users_dict: 
+            attribute_dict = {}
+            for k in user.keys():
+                if k in user_attribute_list:
+                    # attribute_dict[k] = user[k]
+                    attribute_dict[k] = [x.strip() for x in str(user[k]).split(',')]
+                # elif k != 'User ID':
+                    # attribute_dict[k] = user[k]
+            users[str(user['User ID'])] = attribute_dict
+
+
+        resources_dict = resources_csv.to_dict('records')
+
+        # resource_attributes_that_is_a_list = ["Medium(s)", "Social Media", "Target Community", "Target Audience", "Commonly Used Language", "Clinical Diagnosis (DSM-V)", "Pros", "Cons", "When to Use", "Health Service Providers", "Type of Medicine", "Approvals", "Covered By"]
+        # resource_attribute_list = ["Target Audience", "Geographic Focus", "LGBTQ+ Friendly"]
+        resource_attribute_list = ["Target Audience", "LGBTQ+ Friendly", "Welfie Rating", "Geographic Focus", "Tech. Equity",
+                                "Type of Organization"]
+        resources = {}
+        for resource in resources_dict:
+            attribute_dict = {}
+            for k in resource.keys():
+                # if pd.isna(resource[k]):
+                #     attribute_dict[k] = None
+                if k in resource_attribute_list:
+                    attribute_dict[k] = [x.strip() for x in str(resource[k]).split(',')]
+                # elif k != 'Name':
+                    # attribute_dict[k] = resource[k]
+            resources[resource["Name"]] = attribute_dict
+
+        utils.print_dict(1, users, "User Dictionary: ")
+        utils.print_dict(1, resources, "Resource Dictionary: ")
+
+        age_map = {"Young Adult: 17-21": (17,21), 
+                            "Adult: 21+": (21,150), 
+                            "Highschool: 9-12": (14,19), 
+                            "K-12": (3,19), 
+                            "Middle: 7-8": (11,14), 
+                            "Elementary: 1-5": (4,9)}
+
+        # 0-19 = 1, 20-39 = 2, 40-59 = 3, 60-79 = 4, 80-100 = 5
+        mhq_map = {"1.0": (0, 19), 
+                            "2.0": (20, 39),
+                            "3.0": (40, 59),
+                            "4.0": (60, 79),
+                            "5.0": (80, 100)}
         data = request.get_json()
         print(data)
         index = str(data['index'])
@@ -141,80 +207,14 @@ def process_data():
 
         return resources_list
 
+
+
 @app.route('/', methods=['GET'])
 def server_status():
-    return "Server is Running"
+    return "Server is running"
 
 
 
 
-if __name__ == '__main__':
-
-    # Read user and movie data from CSV files
-    user_csv = pd.read_csv('Welfie_Users.csv')
-    resources_csv = pd.read_csv('Mental_Health_Resources.csv')
-
-    # Each user has keys: 'Name', ...
-    users_dict = user_csv.to_dict('records')
-
-    # User -> Resource 
-    # Age -> Target Audience (Done)
-    # Geographic Focus -> Geographic Focus (Done)
-    # MHQ Score -> Welfie Rating (0-19 = 1, 20-39 = 2, 40-59 = 3, 60-79 = 4, 80-100 = 5) (Done)
-    # LGBTQ+ Friendly -> LGBTQ+ Friendly (Done)
-    # Technical Proficiency -> Tech. Equity (1=Low, 4=High) (Done)
-    # Type of Organization -> Type of Organization (Done)
-    # 
-    # Other Preferences -> Pros, Cons, 
-
-    # user_attributes_that_is_a_list = ["Health Service Providers", "Type of Medicine", "Commonly Used Language*", "Clinical Diagnosis (DSM-V)", "Other Preferences"]
-    user_attribute_list = ["Name", "Age", "LGBTQ+ Friendly", "MHQ score", "Geographic Focus", "Technical Proficiency", 
-                        "Type of Organization"]
-    users = {}
-    for user in users_dict: 
-        attribute_dict = {}
-        for k in user.keys():
-            if k in user_attribute_list:
-                # attribute_dict[k] = user[k]
-                attribute_dict[k] = [x.strip() for x in str(user[k]).split(',')]
-            # elif k != 'User ID':
-                # attribute_dict[k] = user[k]
-        users[str(user['User ID'])] = attribute_dict
-
-
-    resources_dict = resources_csv.to_dict('records')
-
-    # resource_attributes_that_is_a_list = ["Medium(s)", "Social Media", "Target Community", "Target Audience", "Commonly Used Language", "Clinical Diagnosis (DSM-V)", "Pros", "Cons", "When to Use", "Health Service Providers", "Type of Medicine", "Approvals", "Covered By"]
-    # resource_attribute_list = ["Target Audience", "Geographic Focus", "LGBTQ+ Friendly"]
-    resource_attribute_list = ["Target Audience", "LGBTQ+ Friendly", "Welfie Rating", "Geographic Focus", "Tech. Equity",
-                            "Type of Organization"]
-    resources = {}
-    for resource in resources_dict:
-        attribute_dict = {}
-        for k in resource.keys():
-            # if pd.isna(resource[k]):
-            #     attribute_dict[k] = None
-            if k in resource_attribute_list:
-                attribute_dict[k] = [x.strip() for x in str(resource[k]).split(',')]
-            # elif k != 'Name':
-                # attribute_dict[k] = resource[k]
-        resources[resource["Name"]] = attribute_dict
-
-    utils.print_dict(1, users, "User Dictionary: ")
-    utils.print_dict(1, resources, "Resource Dictionary: ")
-
-    age_map = {"Young Adult: 17-21": (17,21), 
-                        "Adult: 21+": (21,150), 
-                        "Highschool: 9-12": (14,19), 
-                        "K-12": (3,19), 
-                        "Middle: 7-8": (11,14), 
-                        "Elementary: 1-5": (4,9)}
-
-    # 0-19 = 1, 20-39 = 2, 40-59 = 3, 60-79 = 4, 80-100 = 5
-    mhq_map = {"1.0": (0, 19), 
-                        "2.0": (20, 39),
-                        "3.0": (40, 59),
-                        "4.0": (60, 79),
-                        "5.0": (80, 100)}
-    
+if __name__ == '__main__':    
     app.run(host='0.0.0.0', port=5000)

@@ -91,10 +91,10 @@ def process_data():
         
 
 
-        def recommend(resources: dict, query_userID: str) -> tuple[list, dict]: 
+        def recommend(attr, resources: dict, query_userID: str) -> tuple[list, dict]: 
             final_resources_rank = {}
             recommended_list = [] # i.e. all attributes match 
-            num_attributes = 3
+            num_attributes = attr
             resources_list = []
 
             for resource, attribute in resources.items():
@@ -193,8 +193,8 @@ def process_data():
             exit()
         else: 
             print("\nUser Preferences: ", users[index], "\n")
-            all_satisfied, final_resources_rank, resources_list = recommend(resources, index) 
-            utils.print_list(all_satisfied, "Recommended Resources:")
+            all_satisfied, final_resources_rank, resources_list = recommend(4,resources, index) 
+            all_satisfied_, final_resources_rank_, resources_list_ = recommend(3,resources, index) 
             num_suggested = 3
             count = 0
             suggested = []
@@ -206,10 +206,13 @@ def process_data():
                         break
                 if count >= num_suggested:
                     break
-            utils.print_list(suggested, "Suggested Resources: ")
-        print(resources_list)
+        print(suggested)
+        final_results = {
+            "recommended" : resources_list,
+            "suggested" : resources_list_
+        }
 
-        return jsonify(resources_list)
+        return final_results
 
 
 
